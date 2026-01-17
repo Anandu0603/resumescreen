@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "resumescren/backend/app.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "15mb", "pip": "install -r resumescren/backend/requirements.txt" }
+    },
+    {
+      "src": "resumescren/frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "build" }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "resumescren/backend/app.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "resumescren/frontend/build/$1"
+    }
+  ]
+}

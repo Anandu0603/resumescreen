@@ -1,0 +1,52 @@
+JOHN DOE
+San Francisco, CA | (555) 123-4567 | john.doe@example.com | linkedin.com/in/johndoe | github.com/johndoe
+
+TECHNICAL SKILLS
+- Languages: Python, JavaScript (ES6+), TypeScript, SQL, HTML5, CSS3
+- Frameworks: React, Node.js, Express, Django, Flask
+- Cloud & DevOps: AWS (EC2, S3, Lambda, RDS), Docker, Kubernetes, Jenkins
+- Databases: PostgreSQL, MongoDB, Redis
+- Tools: Git, JIRA, VS Code, Postman, Jest, PyTest
+
+PROFESSIONAL EXPERIENCE
+
+Senior Software Engineer
+Tech Innovations Inc., San Francisco, CA | Jan 2020 - Present
+- Led a team of 4 developers to build a scalable microservices architecture using Python and React
+- Reduced API response time by 40% through query optimization and caching strategies
+- Implemented CI/CD pipelines using Jenkins and Docker, reducing deployment time by 60%
+- Designed and developed RESTful APIs serving 1M+ daily requests
+- Mentored junior developers and conducted code reviews
+
+Software Engineer
+Digital Solutions LLC, San Jose, CA | Jun 2017 - Dec 2019
+- Developed and maintained web applications using React and Node.js
+- Collaborated with product team to implement new features and improve user experience
+- Optimized database queries, reducing page load time by 35%
+- Implemented unit and integration tests, increasing test coverage to 85%
+- Participated in agile development process with 2-week sprints
+
+EDUCATION
+Bachelor of Science in Computer Science
+University of California, Berkeley | 2013 - 2017
+- GPA: 3.8/4.0
+- Relevant Coursework: Data Structures, Algorithms, Database Systems, Web Development
+
+CERTIFICATIONS
+- AWS Certified Solutions Architect - Associate
+- Google Cloud Professional Cloud Architect
+
+PROJECTS
+E-commerce Platform (Personal Project) | GitHub
+- Built a full-stack e-commerce application using MERN stack (MongoDB, Express, React, Node.js)
+- Implemented user authentication, product catalog, and payment integration
+- Deployed on AWS with auto-scaling and load balancing
+
+Open Source Contributions
+- Contributed to React and Django open-source projects
+- Maintained a popular Python package with 5,000+ weekly downloads
+
+ACHIEVEMENTS
+- Employee of the Year 2021 at Tech Innovations Inc.
+- Speaker at PyCon 2020: "Scaling Python Applications with Microservices"
+- Published article on Medium about React performance optimization (10K+ views)

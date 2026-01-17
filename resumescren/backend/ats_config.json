@@ -1,0 +1,18 @@
+{
+  "api": {
+    "base_url": "http://localhost:5000",
+    "auth_token": "YOUR_AUTH_TOKEN",
+    "timeout": 30
+  },
+  "processing": {
+    "batch_size": 50,
+    "max_workers": 4,
+    "min_score": 70.0,
+    "top_n": 10
+  },
+  "paths": {
+    "dataset_dir": "../dataset/data/data",
+    "output_dir": "../dataset/processed_results"
+  },
+  "job_description": "We are looking for a skilled professional with the following qualifications:\n- Strong programming skills in Python, Java, or JavaScript\n- Experience with web development frameworks (Django, Flask, React, or Node.js)\n- Knowledge of databases (SQL/NoSQL)\n- Experience with version control (Git)\n- Problem-solving and analytical skills\n- Good communication and teamwork abilities"
+}

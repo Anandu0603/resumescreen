@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Resume Screener</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --bg-color: #f8f9fc;
+            --text-color: #5a5c69;
+            --card-bg: #ffffff;
+            --card-border: #e3e6f0;
+            --input-bg: #ffffff;
+            --input-border: #d1d3e2;
+            --text-muted: #858796;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #1a202c;
+            --text-color: #e2e8f0;
+            --card-bg: #2d3748;
+            --card-border: #4a5568;
+            --input-bg: #2d3748;
+            --input-border: #4a5568;
+            --text-muted: #a0aec0;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+        
+        .form-register {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            margin: auto;
+        }
+        
+        .form-floating {
+            margin-bottom: 1rem;
+        }
+        
+        .form-control {
+            background-color: var(--input-bg);
+            border-color: var(--input-border);
+            color: var(--text-color);
+        }
+        
+        .form-control:focus {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .form-label {
+            color: var(--text-muted);
+        }
+        
+        .card {
+            border: 1px solid var(--card-border);
+            background-color: var(--card-bg);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,.125);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #2e59d9;
+            border-color: #2653d4;
+        }
+        
+        .text-center a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .text-center a:hover {
+            text-decoration: underline;
+        }
+        
+        .password-strength {
+            height: 5px;
+            margin-top: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .strength-0 { width: 20%; background-color: #e74a3b; }
+        .strength-1 { width: 40%; background-color: #f6c23e; }
+        .strength-2 { width: 60%; background-color: #f6c23e; }
+        .strength-3 { width: 80%; background-color: #1cc88a; }
+        .strength-4 { width: 100%; background-color: #1cc88a; }
+    </style>
+</head>
+<body class="text-center">
+    <main class="form-register">
+        <div class="card shadow">
+            <div class="card-header">
+                <h4>Create an Account</h4>
+                <p class="mb-0">Join Resume Screener today</p>
+            </div>
+            <div class="card-body p-4">
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="username" placeholder="Username" required>
+                        <label for="username">Username</label>
+                    </div>
+                    
+                    <div class="form-floating">
+                        <input type="email" class="form-control" id="email" placeholder="Email address" required>
+                        <label for="email">Email address</label>
+                    </div>
+                    
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="password" placeholder="Password" required 
+                               oninput="checkPasswordStrength(this.value)">
+                        <label for="password">Password</label>
+                        <div id="passwordStrength" class="password-strength"></div>
+                        <small id="passwordHelp" class="form-text text-muted">
+                            Password must be at least 8 characters long and contain at least one number and one special character.
+                        </small>
+                    </div>
+                    
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" required>
+                        <label for="confirmPassword">Confirm Password</label>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-lg btn-primary" type="submit">Register</button>
+                    </div>
+                    
+                    <div id="errorMessage" class="alert alert-danger mt-3 d-none" role="alert"></div>
+                    
+                    <p class="mt-3 mb-0">
+                        Already have an account? <a href="/login">Sign in here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Apply theme from localStorage if set
+        function applyTheme() {
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+        
+        // Toggle theme
+        function toggleTheme() {
+            const htmlElement = document.documentElement;
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+        
+        // Check password strength
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const strengthBar = document.getElementById('passwordStrength');
+            
+            // Length check
+            if (password.length >= 8) strength++;
+            
+            // Contains number
+            if (/\d/.test(password)) strength++;
+            
+            // Contains special character
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+            
+            // Contains both uppercase and lowercase
+            if (/(?=.*[a-z])(?=.*[A-Z])/.test(password)) strength++;
+            
+            // Update strength bar
+            strengthBar.className = 'password-strength strength-' + (strength - 1);
+        }
+        
+        // Handle registration form submission
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorElement = document.getElementById('errorMessage');
+            
+            // Basic client-side validation
+            if (password !== confirmPassword) {
+                errorElement.textContent = 'Passwords do not match';
+                errorElement.classList.remove('d-none');
+                return;
+            }
+            
+            if (password.length < 8) {
+                errorElement.textContent = 'Password must be at least 8 characters long';
+                errorElement.classList.remove('d-none');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Redirect to login page with success message
+                    window.location.href = '/login?registered=true';
+                } else {
+                    // Show error message
+                    errorElement.textContent = data.error || 'Registration failed. Please try again.';
+                    errorElement.classList.remove('d-none');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                errorElement.textContent = 'An error occurred. Please try again later.';
+                errorElement.classList.remove('d-none');
+            }
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+            
+            // Add theme toggle button
+            const header = document.querySelector('.card-header');
+            const themeToggle = document.createElement('button');
+            themeToggle.className = 'btn btn-sm btn-outline-light position-absolute top-0 end-0 m-2';
+            themeToggle.innerHTML = '<i class="bi bi-moon-stars"></i>';
+            themeToggle.onclick = toggleTheme;
+            header.style.position = 'relative';
+            header.appendChild(themeToggle);
+            
+            // Check for registration success
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('registered') === 'true') {
+                const successMessage = document.createElement('div');
+                successMessage.className = 'alert alert-success';
+                successMessage.textContent = 'Registration successful! Please log in.';
+                document.querySelector('form').prepend(successMessage);
+            }
+        });
+    </script>
+</body>
+</html>

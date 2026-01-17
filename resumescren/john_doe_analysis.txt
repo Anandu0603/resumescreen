@@ -1,0 +1,23 @@
+=== Resume Analysis Report ===
+
+Candidate: John Doe
+Position: Senior Software Engineer
+Match Score: 25.19%
+
+=== Key Requirements Matched ===
+✗ 5+ years of experience
+✓ Python
+✓ JavaScript/TypeScript
+✗ React.js
+✓ Node.js
+✓ Cloud (AWS/GCP/Azure)
+✓ SQL/NoSQL
+
+=== Additional Skills Found ===
+Docker, Kubernetes, Ci/Cd, Jenkins, Git, Microservices, Agile, Aws, Postgresql, Mongodb, Redis
+
+=== Overall Assessment ===
+Moderate match. Consider additional screening for this candidate.
+
+=== Recommendation ===
+❌ MAY NOT BE A GOOD FIT based on resume screening

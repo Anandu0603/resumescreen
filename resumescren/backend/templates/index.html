@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Screener - Batch Processing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --primary-light: #f0f3ff;
+            --secondary-color: #f8f9fc;
+            --success-color: #1cc88a;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --border-radius: 0.35rem;
+            
+            /* Light theme (default) */
+            --bg-color: #f8f9fc;
+            --text-color: #5a5c69;
+            --card-bg: #ffffff;
+            --card-border: #e3e6f0;
+            --input-bg: #ffffff;
+            --input-border: #d1d3e2;
+            --text-muted: #858796;
+        }
+        
+        /* Dark theme */
+        [data-theme="dark"] {
+            --bg-color: #1a202c;
+            --text-color: #e2e8f0;
+            --card-bg: #2d3748;
+            --card-border: #4a5568;
+            --input-bg: #2d3748;
+            --input-border: #4a5568;
+            --text-muted: #a0aec0;
+            --secondary-color: #2d3748;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding: 20px 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .upload-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border: 1px solid var(--card-border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .card {
+            border: 1px solid var(--card-border);
+            border-radius: var(--border-radius);
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            background-color: var(--card-bg);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .card-header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #2e59d9;
+            border-color: #2653d4;
+        }
+        
+        .progress {
+            height: 1rem;
+            border-radius: 0.35rem;
+            background-color: var(--card-border);
+        }
+        
+        .progress-bar {
+            background-color: var(--primary-color);
+        }
+        
+        .skill-tag {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            margin: 0.2rem;
+            font-size: 0.8rem;
+            color: #4e73df;
+            background-color: #e6e9ff;
+            border: 1px solid #d1d5ff;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed var(--input-border);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+            background-color: var(--card-bg);
+        }
+        
+        .file-upload-area:hover, .file-upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+        
+        .file-upload-area i {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .file-preview {
+            margin-top: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 0.35rem;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .file-item .file-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .file-item .file-icon {
+            margin-right: 0.75rem;
+            color: var(--primary-color);
+        }
+        
+        .file-item .file-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+        
+        .file-item .file-remove {
+            color: var(--danger-color);
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        
+        .result-item {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .result-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.2);
+        }
+        
+        .match-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .high-match {
+            border-left-color: var(--success-color) !important;
+        }
+        
+        .medium-match {
+            border-left-color: var(--warning-color) !important;
+        }
+        
+        .low-match {
+            border-left-color: var(--danger-color) !important;
+        }
+        
+        .summary-card {
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .best-match {
+            border: 2px solid var(--success-color) !important;
+            box-shadow: 0 0.5rem 2rem 0 rgba(28, 200, 138, 0.3) !important;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .best-match::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--success-color), var(--warning-color), var(--success-color));
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .best-match-badge {
+            background: linear-gradient(45deg, var(--success-color), #20c997);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(28, 200, 138, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 2px 8px rgba(28, 200, 138, 0.4); }
+            50% { box-shadow: 0 2px 16px rgba(28, 200, 138, 0.6); }
+            100% { box-shadow: 0 2px 8px rgba(28, 200, 138, 0.4); }
+        }
+        
+        .crown-icon {
+            color: #ffd700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            animation: sparkle 1.5s infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .upload-container {
+                padding: 1.5rem;
+            }
+            
+            .file-item .file-name {
+                max-width: 200px;
+            }
+        }
+        
+        .form-control, .form-select {
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-color);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="text-center flex-grow-1">
+                <h1 class="h3 text-gray-800 mb-1">AI Resume Screener</h1>
+                <p class="text-muted mb-0">Upload multiple resumes and get instant matching scores against your job description</p>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <a href="/login" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </a>
+                    <a href="/register" class="btn btn-primary">
+                        <i class="bi bi-person-plus"></i> Register
+                    </a>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="darkModeToggle" style="width: 3em; height: 1.5em;">
+                    <label class="form-check-label ms-2" for="darkModeToggle">
+                        <i class="bi bi-moon-stars"></i>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Upload Container -->
+        <div class="upload-container">
+            <!-- Job Description Section -->
+            <div class="mb-4">
+                <label for="jobDescription" class="form-label fw-bold">Job Description</label>
+                <textarea class="form-control" id="jobDescription" rows="6" 
+                    placeholder="Paste the job description here... Include key skills, requirements, and responsibilities."></textarea>
+                <div class="form-text">The more detailed your job description, the better the matching results will be.</div>
+            </div>
+            
+            <!-- File Upload Section -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">Upload Resumes</label>
+                <div class="file-upload-area" id="dropArea">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <h5>Drag & drop your files here</h5>
+                    <p class="text-muted mb-3">or</p>
+                    <input type="file" id="resumeUpload" class="d-none" multiple accept=".pdf,.docx">
+                    <button class="btn btn-primary" onclick="document.getElementById('resumeUpload').click()">
+                        <i class="bi bi-upload me-2"></i>Select Files
+                    </button>
+                    <p class="small text-muted mt-2 mb-0">Supports PDF and DOCX files (Max 50MB each)</p>
+                </div>
+                
+                <!-- Selected Files Preview -->
+                <div id="filePreview" class="file-preview">
+                    <!-- Files will be listed here -->
+                </div>
+            </div>
+            
+            <!-- Processing Options -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="enableBatch" checked>
+                        <label class="form-check-label" for="enableBatch">Enable batch processing</label>
+                    </div>
+                    <div class="form-text">Process multiple files simultaneously (recommended for better performance)</div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <button class="btn btn-primary" id="processBtn" onclick="processResume()">
+                        <i class="bi bi-play-fill me-2"></i>Process Resumes
+                    </button>
+                    <button class="btn btn-outline-secondary ms-2" onclick="clearAll()">
+                        <i class="bi bi-x-circle me-2"></i>Clear All
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress mb-3" style="display: none;" id="progressBarContainer">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">
+                    <span id="progressText">0%</span>
+                </div>
+            </div>
+            
+            <!-- Error Alert -->
+            <div class="alert alert-danger mt-3" id="errorAlert" style="display: none;"></div>
+            
+            <!-- Processing Summary -->
+            <div class="card border-left-primary shadow mb-4" id="summaryCard" style="display: none;">
+                <div class="card-body py-2">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Processing Summary
+                            </div>
+                            <div class="h6 mb-0 font-weight-bold text-gray-800">
+                                <span id="processedCount">0</span> of <span id="totalCount">0</span> files processed
+                                (<span id="successCount" class="text-success">0</span> success, 
+                                <span id="failedCount" class="text-danger">0</span> failed)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-graph-up-arrow fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Container -->
+        <div id="resultsContainer">
+            <!-- Results will be populated here by JavaScript -->
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="text-center my-5" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Processing your resumes. This may take a few moments...</p>
+        </div>
+    </div>
+    
+    <!-- Detail Modal -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailModalTitle">Resume Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detailModalBody">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="downloadPdf">
+                        <i class="bi bi-download me-2"></i>Download PDF Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const htmlElement = document.documentElement;
+        
+        // Check for saved user preference, if any, on load of the website
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        
+        // Apply the saved theme
+        if (savedTheme === 'dark') {
+            htmlElement.setAttribute('data-theme', 'dark');
+            darkModeToggle.checked = true;
+        } else {
+            htmlElement.setAttribute('data-theme', 'light');
+            darkModeToggle.checked = false;
+        }
+        
+        // Listen for toggle changes
+        darkModeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                htmlElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                htmlElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (!localStorage.getItem('theme')) {
+                if (e.matches) {
+                    htmlElement.setAttribute('data-theme', 'dark');
+                    darkModeToggle.checked = true;
+                } else {
+                    htmlElement.setAttribute('data-theme', 'light');
+                    darkModeToggle.checked = false;
+                }
+            }
+        });
+        
+        // Global variables
+        let selectedFiles = [];
+        let currentResults = [];
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+            setupFileInput();
+        });
+        
+        // Set up drag and drop functionality
+        function setupDragAndDrop() {
+            const dropArea = document.getElementById('dropArea');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('dragover');
+            }
+            
+            // Handle dropped files
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+        }
+        
+        // Set up file input change handler
+        function setupFileInput() {
+            const fileInput = document.getElementById('resumeUpload');
+            fileInput.addEventListener('change', function() {
+                handleFiles(this.files);
+            });
+        }
+        
+        // Handle selected files
+        function handleFiles(files) {
+            const validFiles = Array.from(files).filter(file => {
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                return ['pdf', 'docx'].includes(fileExt);
+            });
+            
+            if (validFiles.length === 0) {
+                showError('Please select valid PDF or DOCX files');
+                return;
+            }
+            
+            // Add files to selected files array
+            validFiles.forEach(file => {
+                // Check if file already exists
+                const fileExists = selectedFiles.some(f => f.name === file.name && f.size === file.size);
+                if (!fileExists) {
+                    selectedFiles.push(file);
+                }
+            });
+            
+            updateFilePreview();
+        }
+        
+        // Update the file preview list
+        function updateFilePreview() {
+            const filePreview = document.getElementById('filePreview');
+            filePreview.innerHTML = '';
+            
+            if (selectedFiles.length === 0) {
+                filePreview.innerHTML = '<p class="text-muted text-center py-3">No files selected</p>';
+                return;
+            }
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileIcon = file.name.endsWith('.pdf') ? 'file-pdf' : 'file-word';
+                
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <i class="bi bi-${fileIcon} file-icon"></i>
+                        <span class="file-name" title="${file.name}">${file.name}</span>
+                    </div>
+                    <div>
+                        <span class="text-muted small me-2">${formatFileSize(file.size)}</span>
+                        <i class="bi bi-x-circle file-remove" onclick="removeFile(${index})" title="Remove file"></i>
+                    </div>
+                `;
+                
+                filePreview.appendChild(fileItem);
+            });
+        }
+        
+        // Remove a file from the selection
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFilePreview();
+        }
+        
+        // Clear all selected files
+        function clearAll() {
+            selectedFiles = [];
+            updateFilePreview();
+            document.getElementById('jobDescription').value = '';
+            document.getElementById('resultsContainer').innerHTML = '';
+            document.getElementById('summaryCard').style.display = 'none';
+        }
+        
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Process all selected resumes
+        async function processResume() {
+            const jobDescription = document.getElementById('jobDescription').value.trim();
+            const enableBatch = document.getElementById('enableBatch').checked;
+            const processBtn = document.getElementById('processBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            // Validate inputs
+            if (selectedFiles.length === 0) {
+                showError('Please select at least one resume file');
+                return;
+            }
+            
+            if (!jobDescription) {
+                showError('Please enter a job description');
+                return;
+            }
+            
+            // Reset UI
+            document.getElementById('errorAlert').style.display = 'none';
+            document.getElementById('resultsContainer').innerHTML = '';
+            processBtn.disabled = true;
+            loadingSpinner.style.display = 'block';
+            
+            // Show progress
+            updateProgress(0, selectedFiles.length, 0, 0);
+            
+            const formData = new FormData();
+            selectedFiles.forEach(file => {
+                formData.append('resume', file);
+            });
+            formData.append('job_description', jobDescription);
+            
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'  // Include cookies for authentication
+                });
+                
+                // Check if we got HTML instead of JSON (redirect to login)
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Authentication required. Please log in again.');
+                }
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to process resumes');
+                }
+                
+                // Process results
+                currentResults = data.results || [];
+                displayResults(currentResults);
+                
+            } catch (error) {
+                let errorMessage = error.message || 'An error occurred while processing the resumes';
+                
+                // Check for authentication errors
+                if (errorMessage.includes('Authentication required') || errorMessage.includes('Unexpected token')) {
+                    errorMessage = 'Please log in to use the resume screening feature. <a href="/login" class="alert-link">Click here to login</a>';
+                    showError(errorMessage, true); // Pass true to indicate HTML content
+                } else {
+                    showError(errorMessage);
+                }
+                
+                console.error('Error:', error);
+            } finally {
+                processBtn.disabled = false;
+                loadingSpinner.style.display = 'none';
+            }
+        }
+        
+        // Update progress bar and summary
+        function updateProgress(processed, total, success, failed) {
+            const progressBar = document.querySelector('.progress-bar');
+            const progressContainer = document.getElementById('progressBarContainer');
+            const progressText = document.getElementById('progressText');
+            const summaryCard = document.getElementById('summaryCard');
+            
+            if (processed === 0 && total === 0) {
+                progressContainer.style.display = 'none';
+                summaryCard.style.display = 'none';
+                return;
+            }
+            
+            progressContainer.style.display = 'block';
+            summaryCard.style.display = 'block';
+            
+            const percent = Math.round((processed / total) * 100);
+            progressBar.style.width = `${percent}%`;
+            progressBar.setAttribute('aria-valuenow', percent);
+            progressText.textContent = `${percent}%`;
+            
+            // Update summary
+            document.getElementById('processedCount').textContent = processed;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('successCount').textContent = success;
+            document.getElementById('failedCount').textContent = failed;
+        }
+        
+        // Display all results
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+            
+            if (!results || results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-warning">
+                        No results to display. Please check if any files were processed successfully.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort by match score (highest first)
+            results.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
+            
+            // Find highest scoring resume
+            const highestScore = results[0]?.match_score || 0;
+            const highestScoreIndex = results.findIndex(r => r.match_score === highestScore);
+            
+            // Create results header with summary
+            const header = document.createElement('div');
+            header.className = 'd-flex justify-content-between align-items-center mb-4';
+            header.innerHTML = `
+                <div>
+                    <h3 class="h4 text-gray-800">Results (${results.length} resumes processed)</h3>
+                    <div class="mt-2">
+                        ${highestScore > 0 ? `
+                            <div class="alert alert-success alert-sm py-2 px-3 mb-0 d-inline-block">
+                                <i class="bi bi-trophy me-2"></i>
+                                <strong>Highest ATS Score: ${highestScore}%</strong> 
+                                (${results[0]?.resume_data?.name || results[0]?.filename || 'Unknown'})
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary me-2" onclick="exportToCsv()">
+                        <i class="bi bi-download me-1"></i>Export to CSV
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="filterResults()">
+                        <i class="bi bi-funnel me-1"></i>Filter Results
+                    </button>
+                </div>
+            `;
+            resultsContainer.appendChild(header);
+            
+            // Add each result
+            results.forEach((result, index) => {
+                const resume = result.resume_data || {};
+                const score = result.match_score || 0;
+                const skills = resume.skills || [];
+                const topSkills = skills.slice(0, 5);
+                const moreSkills = skills.length > 5 ? `+${skills.length - 5} more` : '';
+                
+                // Determine score class and highlight highest scorer
+                let scoreClass = 'low-match';
+                let highlightClass = '';
+                if (score >= 70) scoreClass = 'high-match';
+                else if (score >= 40) scoreClass = 'medium-match';
+                
+                // Highlight the highest scoring resume
+                if (index === highestScoreIndex && score > 0) {
+                    highlightClass = 'border-success shadow-lg';
+                }
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = `card shadow-sm mb-3 result-item ${scoreClass} ${highlightClass}`;
+                
+                // Add crown icon for highest scorer
+                const crownIcon = index === highestScoreIndex && score > 0 ? 
+                    '<div class="position-absolute top-0 start-100 translate-middle"><i class="bi bi-trophy-fill text-warning fs-4"></i></div>' : '';
+                
+                resultItem.innerHTML = `
+                    <div class="card-body position-relative">
+                        ${crownIcon}
+                        <div class="row align-items-center">
+                            <div class="col-md-1 text-center">
+                                <div class="text-uppercase small text-muted">Rank</div>
+                                <div class="h4 mb-0">#${index + 1}</div>
+                                ${index === highestScoreIndex && score > 0 ? '<div class="badge bg-success mt-1">Best</div>' : ''}
+                            </div>
+                            <div class="col-md-3">
+                                <h5 class="mb-1">${resume.name || 'Name not found'}</h5>
+                                <p class="mb-1 text-muted small">
+                                    <i class="bi bi-envelope me-1"></i>${resume.email || 'N/A'}
+                                </p>
+                                <p class="mb-0 text-muted small">
+                                    <i class="bi bi-telephone me-1"></i>${resume.phone || 'N/A'}
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-1">
+                                    ${topSkills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                                    ${moreSkills ? `<span class="small text-muted">${moreSkills}</span>` : ''}
+                                </div>
+                                <div class="small text-muted">
+                                    ${resume.experience ? `<div><i class="bi bi-briefcase me-1"></i>${resume.experience}</div>` : ''}
+                                    ${resume.education ? `<div><i class="bi bi-mortarboard me-1"></i>${resume.education}</div>` : ''}
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="match-score">${score}%</div>
+                                <div class="progress mt-1" style="height: 5px;">
+                                    <div class="progress-bar bg-${score >= 70 ? 'success' : score >= 40 ? 'warning' : 'danger'}" 
+                                         role="progressbar" style="width: ${score}%" 
+                                         aria-valuenow="${score}" aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <button class="btn btn-sm btn-outline-primary" onclick="showDetails(${index})">
+                                    <i class="bi bi-eye me-1"></i>View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                resultsContainer.appendChild(resultItem);
+            });
+            
+            // Scroll to results
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Show detailed view in modal
+        function showDetails(index) {
+            const result = currentResults[index];
+            if (!result) return;
+            
+            const resume = result.resume_data || {};
+            const details = result.details || {};
+            const score = result.match_score || 0;
+            
+            // Set modal title with ATS score emphasis
+            document.getElementById('detailModalTitle').textContent = `${resume.name || 'Resume'} - ${score}% ATS Match Score`;
+            
+            // Get ATS analysis data from details
+            const importantTerms = details.important_terms || [];
+            const matchedTerms = details.matched_terms || [];
+            const missingTerms = details.missing_terms || [];
+            const matchPercentage = details.match_percentage || score;
+            
+            // Calculate match quality
+            let matchQuality = 'Poor';
+            let qualityColor = 'danger';
+            let qualityIcon = 'bi-exclamation-triangle';
+            
+            if (score >= 80) {
+                matchQuality = 'Excellent';
+                qualityColor = 'success';
+                qualityIcon = 'bi-check-circle';
+            } else if (score >= 60) {
+                matchQuality = 'Good';
+                qualityColor = 'info';
+                qualityIcon = 'bi-check-circle';
+            } else if (score >= 40) {
+                matchQuality = 'Fair';
+                qualityColor = 'warning';
+                qualityIcon = 'bi-exclamation-circle';
+            }
+            
+            // Build comprehensive ATS analysis modal content
+            let content = `
+                <div class="row">
+                    <!-- ATS Score Analysis -->
+                    <div class="col-12 mb-4">
+                        <div class="card border-${qualityColor} bg-light">
+                            <div class="card-body text-center">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="display-4 text-${qualityColor}">
+                                            <i class="bi ${qualityIcon}"></i>
+                                        </div>
+                                        <h3 class="text-${qualityColor} mb-0">${score}%</h3>
+                                        <p class="text-muted mb-0">ATS Match Score</p>
+                                    </div>
+                                    <div class="col-md-8 text-start">
+                                        <h5 class="text-${qualityColor}">${matchQuality} Match</h5>
+                                        <p class="mb-2">This resume has a <strong>${matchQuality.toLowerCase()}</strong> match with the job requirements.</p>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-${qualityColor}" role="progressbar" 
+                                                 style="width: ${score}%" aria-valuenow="${score}" 
+                                                 aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Keyword Analysis -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Matched Keywords (${matchedTerms.length})</h5>
+                            </div>
+                            <div class="card-body">
+                                ${matchedTerms.length > 0 ? 
+                                    `<div class="mb-3">
+                                        ${matchedTerms.map(term => `<span class="badge bg-success me-2 mb-2 p-2">${term}</span>`).join('')}
+                                    </div>
+                                    <small class="text-muted">These keywords from the job description were found in your resume.</small>`
+                                    : 
+                                    '<div class="text-muted">No matching keywords found.</div>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Missing Keywords (${missingTerms.length})</h5>
+                            </div>
+                            <div class="card-body">
+                                ${missingTerms.length > 0 ? 
+                                    `<div class="mb-3">
+                                        ${missingTerms.map(term => `<span class="badge bg-warning text-dark me-2 mb-2 p-2">${term}</span>`).join('')}
+                                    </div>
+                                    <small class="text-muted">Consider adding these keywords to improve your ATS score.</small>`
+                                    : 
+                                    '<div class="text-success">All important keywords are present!</div>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resume Information -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="bi bi-person me-2"></i>Resume Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-file-earmark-text me-2"></i><strong>File:</strong> ${result.filename || 'Unknown'}</li>
+                                    <li><i class="bi bi-person me-2"></i><strong>Name:</strong> ${resume.name || 'Not found'}</li>
+                                    ${resume.email ? `<li><i class="bi bi-envelope me-2"></i><strong>Email:</strong> ${resume.email}</li>` : ''}
+                                    ${resume.phone ? `<li><i class="bi bi-telephone me-2"></i><strong>Phone:</strong> ${resume.phone}</li>` : ''}
+                                    ${resume.location ? `<li><i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> ${resume.location}</li>` : ''}
+                                </ul>
+                                
+                                ${(resume.skills || []).length > 0 ? `
+                                    <h6 class="mt-3">Skills (${resume.skills.length})</h6>
+                                    <div class="mb-3">
+                                        ${resume.skills.map(skill => `<span class="badge bg-secondary me-2 mb-2">${skill}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Analysis Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-percent me-2"></i><strong>Match Score:</strong> ${score}%</li>
+                                    <li><i class="bi bi-check-circle me-2"></i><strong>Matched Terms:</strong> ${matchedTerms.length} of ${importantTerms.length}</li>
+                                    <li><i class="bi bi-graph-up me-2"></i><strong>Match Rate:</strong> ${importantTerms.length > 0 ? Math.round((matchedTerms.length / importantTerms.length) * 100) : 0}%</li>
+                                </ul>
+                                
+                                <div class="mt-3">
+                                    <h6>Score Breakdown</h6>
+                                    <div class="progress mb-2" style="height: 20px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: ${matchedTerms.length > 0 ? Math.min(100, (matchedTerms.length / Math.max(importantTerms.length, 1)) * 100) : 0}%"
+                                             title="${matchedTerms.length} matched terms">
+                                            ${matchedTerms.length} matched
+                                        </div>
+                                        <div class="progress-bar bg-warning" role="progressbar" 
+                                             style="width: ${missingTerms.length > 0 ? Math.min(100, (missingTerms.length / Math.max(importantTerms.length, 1)) * 100) : 0}%"
+                                             title="${missingTerms.length} missing terms">
+                                            ${missingTerms.length} missing
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Experience and Education -->
+                ${(resume.experience || resume.education) ? `
+                <div class="row mt-4">
+                    ${resume.experience ? `
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="mb-0"><i class="bi bi-briefcase me-2"></i>Experience</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="experience">
+                                        ${resume.experience.replace(/\n/g, '<br>')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${resume.education ? `
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="mb-0"><i class="bi bi-mortarboard me-2"></i>Education</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="education">
+                                        ${resume.education.replace(/\n/g, '<br>')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                ` : ''}
+                
+                <!-- Recommendations -->
+                ${missingTerms.length > 0 ? `
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card border-warning">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Recommendations to Improve ATS Score</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Add these keywords to your resume:</strong></p>
+                                <div class="mb-3">
+                                    ${missingTerms.map(term => `<span class="badge bg-warning text-dark me-2 mb-2 p-2">${term}</span>`).join('')}
+                                </div>
+                                <p class="text-muted">Incorporate these missing keywords naturally into your resume sections (summary, experience, skills) to improve your ATS match score.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            
+            document.getElementById('detailModalBody').innerHTML = content;
+            
+            // Set up download button
+            document.getElementById('downloadPdf').onclick = () => downloadPdf(index);
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+            modal.show();
+        }
+        
+        // Export results to CSV
+        function exportToCsv() {
+            if (!currentResults || currentResults.length === 0) {
+                showError('No results to export');
+                return;
+            }
+            
+            // Extract data for CSV
+            const headers = [
+                'Rank', 'Name', 'Email', 'Phone', 'Match Score', 
+                'Skills', 'Experience', 'Education', 'File Name'
+            ];
+            
+            const rows = currentResults.map((result, index) => {
+                const resume = result.resume_data || {};
+                return [
+                    index + 1,
+                    `"${(resume.name || '').replace(/"/g, '""')}"`,
+                    `"${(resume.email || '').replace(/"/g, '""')}"`,
+                    `"${(resume.phone || '').replace(/"/g, '""')}"`,
+                    result.match_score || 0,
+                    `"${(resume.skills || []).join(', ').replace(/"/g, '""')}"`,
+                    `"${(resume.experience || '').replace(/"/g, '""').replace(/\n/g, ' ').trim()}"`,
+                    `"${(resume.education || '').replace(/"/g, '""').replace(/\n/g, ' ').trim()}"`,
+                    `"${(result.filename || '').replace(/"/g, '""')}"`
+                ].join(',');
+            });
+            
+            // Create CSV content
+            const csvContent = [
+                headers.join(','),
+                ...rows
+            ].join('\n');
+            
+            // Create download link
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `resume_screening_results_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Filter results (placeholder function)
+        function filterResults() {
+            // This is a placeholder - implement your filtering logic here
+            alert('Filter functionality will be implemented here');
+        }
+        
+        // Download PDF report (placeholder function)
+        function downloadPdf(index) {
+            // This is a placeholder - implement PDF generation logic here
+            alert('PDF generation will be implemented here');
+        }
+        
+        // Show error message
+        function showError(message, isHtml = false) {
+            const errorAlert = document.getElementById('errorAlert');
+            if (isHtml) {
+                errorAlert.innerHTML = `
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close float-end" onclick="this.parentElement.style.display='none'"></button>
+                `;
+            } else {
+                errorAlert.innerHTML = `
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close float-end" onclick="this.parentElement.style.display='none'"></button>
+                `;
+            }
+            errorAlert.style.display = 'block';
+            errorAlert.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

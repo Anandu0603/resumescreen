@@ -1,0 +1,16 @@
+
+    John Doe
+    Software Engineer
+    Email: john.doe@email.com
+    Phone: (555) 123-4567
+    
+    Experience:
+    - Senior Python Developer at Tech Corp (2020-2023)
+    - Flask and Django web application development
+    - SQL database design and optimization
+    - Machine learning model implementation
+    - Team lead for 5 developers
+    
+    Skills:
+    Python, Flask, Django, SQL, Machine Learning, Git, AWS
+    

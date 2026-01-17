@@ -1,0 +1,4 @@
+{
+  "error": "HTTPConnectionPool(host='localhost', port=5000): Max retries exceeded with url: /api/upload (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000013800788CA0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))",
+  "file": "C:\\Users\\arjun\\OneDrive\\Desktop\\resumescren\\backend\\..\\dataset\\data\\data\\ACCOUNTANT\\16237710.pdf"
+}
