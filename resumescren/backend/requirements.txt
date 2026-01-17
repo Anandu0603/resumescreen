@@ -1,6 +1,9 @@
 flask
 flask-cors
+flask-login
 python-docx
-pdfminer.six
+PyPDF2
 scikit-learn
 numpy
+pandas
+requests
