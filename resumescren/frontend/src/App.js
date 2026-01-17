@@ -51,7 +51,7 @@ const AppContent = () => {
     formData.append('job_description', jobDesc);
     
     try {
-      const res = await fetch('http://localhost:5000/api/upload', {
+      const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include', // Include cookies for session
@@ -82,7 +82,7 @@ const AppContent = () => {
     setSearchResults([]);
     
     try {
-      const res = await fetch(`http://localhost:5000/api/search?keyword=${encodeURIComponent(keyword)}`, {
+      const res = await fetch(`/api/search?keyword=${encodeURIComponent(keyword)}`, {
         credentials: 'include', // Include cookies for session
       });
       
