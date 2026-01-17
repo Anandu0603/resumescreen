@@ -18,8 +18,11 @@
       "dest": "resumescren/backend/app.py"
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/(.*)",
-      "dest": "resumescren/frontend/build/$1"
+      "dest": "resumescren/frontend/build/index.html"
     }
   ]
 }
